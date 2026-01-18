@@ -1,12 +1,37 @@
 from fastapi import FastAPI
+from typing import Optional
+from pydantic import BaseModel
 
-app= FastAPI()
+app = FastAPI()
 
-@app.get("/")
-def index():
-    return {"data":{"name":"mithgal"}}
 
-@app.get("/about")
-def about():
-    return {'data':'about page'}
+@app.get("/blog")
+def index(limit=10, published: bool = True, sort: Optional[str] = None):
+    if published:
+        return {"data": f"{limit} published blogs from the db."}
+    else:
+        return {"data": f"{limit} blogs from the db."}
 
+
+@app.get("/blog/unpublished")
+@app.get("/blog/{id}")
+def show(id):
+    # fetch blog with id = id
+    return {"data": id}
+
+
+@app.get("/blog/{id}/comments")
+def comment(id):
+    # fetch comment of blog with id = id
+    return {"data": {id: "2"}}
+
+
+class Blog(BaseModel):
+    title: str
+    body: str
+    published_at: Optional[bool]
+
+
+@app.post("/blog")
+def create(request: Blog):
+    return request
